@@ -6,9 +6,11 @@ import {
   TCacheValidationType,
 } from "./PrimeSelect.types";
 import isEqual from "lodash.isequal";
+import { clone, roughSizeOfObject } from "./utils";
 
 export default class PrimeSelect {
-  private static cacheMapping: TCacheMapping = new Map();
+  private static cacheMapping: Map<string, ISingletonCache<unknown>> =
+    new Map();
 
   private static getNewSingletonCache = <R = unknown>(options?: {
     cacheValidationType?: TCacheValidationType;
@@ -81,8 +83,10 @@ export default class PrimeSelect {
   };
 
   static createSelector: TCreateSelector = (props) => {
-    const { dependency, cacheValidationType, compute } = props;
+    const { name, cacheValidationType, dependency, compute } = props;
     const cache = PrimeSelect.getNewSingletonCache({ cacheValidationType });
+
+    PrimeSelect.cacheMapping.set(name, cache);
 
     return (...args) => {
       // gather deps
@@ -106,5 +110,137 @@ export default class PrimeSelect {
       // eslint-disable-next-line @typescript-eslint/no-unsafe-return
       return newResult as any;
     };
+  };
+
+  // metrics
+  static getMetrics = (selectorName?: string) => {
+    if (selectorName) {
+      const currentSelector = PrimeSelect.cacheMapping?.get(selectorName);
+
+      if (!currentSelector) {
+        throw new Error(`Selector ${selectorName} not found`);
+      }
+
+      const { cache } = currentSelector;
+
+      const cacheSize = roughSizeOfObject(cache);
+
+      return {
+        name: selectorName,
+        cache: clone(cache),
+        cacheSize,
+      };
+    } else {
+      const overallCacheSize: ReturnType<typeof roughSizeOfObject> = {
+        bytes: 0,
+        kilobytes: 0,
+        megabytes: 0,
+      };
+      // overall metrics
+      const overallCache: {
+        name: string;
+        cache: unknown;
+        cacheSize: typeof overallCacheSize;
+      }[] = [];
+      let maxCacheUsageSelector: {
+        name: string;
+        cache: unknown;
+        cacheSize: typeof overallCacheSize;
+      } = {
+        name: "",
+        cache: null,
+        cacheSize: { bytes: 0, kilobytes: 0, megabytes: 0 },
+      };
+
+      const accumulateCacheSize = (
+        selectorMetricsCacheSize: typeof overallCacheSize
+      ) => {
+        overallCacheSize.bytes += selectorMetricsCacheSize.bytes;
+        overallCacheSize.kilobytes += selectorMetricsCacheSize.kilobytes;
+        overallCacheSize.megabytes += selectorMetricsCacheSize.megabytes;
+      };
+
+      PrimeSelect.cacheMapping.forEach(
+        (currentSelector, currentSelectorName) => {
+          if (!currentSelector) {
+            throw new Error(`Selector ${currentSelectorName} not found`);
+          }
+
+          const { cache } = currentSelector;
+
+          const cacheSize = roughSizeOfObject(cache);
+
+          const selectorMetrics = {
+            name: currentSelectorName,
+            cache: clone(cache),
+            cacheSize,
+          };
+          if (maxCacheUsageSelector) {
+            if (
+              selectorMetrics.cacheSize.bytes >
+              maxCacheUsageSelector.cacheSize.bytes
+            ) {
+              maxCacheUsageSelector = selectorMetrics;
+            }
+          } else {
+            maxCacheUsageSelector = selectorMetrics;
+          }
+          accumulateCacheSize(selectorMetrics.cacheSize);
+          overallCache.push(selectorMetrics);
+        }
+      );
+      const selectorsCacheUsageRanked = overallCache.sort(
+        (a, b) => b.cacheSize.bytes - a.cacheSize.bytes
+      );
+      return {
+        totalNoOfSelectors: overallCache.length,
+        cacheSize: overallCacheSize,
+        maxCacheUsageSelector:
+          maxCacheUsageSelector.cacheSize.bytes > 0
+            ? maxCacheUsageSelector
+            : "none",
+        selectorsCacheUsageRanked,
+      };
+    }
+  };
+
+  /**
+   *
+   * if selectorName passed cache will be cleared for that particular selector, Clear the cache for all the selectors
+   */
+  static clearCache = (selectorName?: string): void => {
+    if (selectorName) {
+      const currentCache = PrimeSelect.cacheMapping?.get(selectorName);
+
+      if (!currentCache) {
+        throw new Error(`Selector ${selectorName} not found`);
+      }
+
+      const { clearCache } = currentCache;
+
+      clearCache();
+    } else {
+      PrimeSelect.cacheMapping.forEach((currentCache) => {
+        currentCache.clearCache();
+      });
+    }
+  };
+
+  static performGlobalGarbageCollection = (verbose: boolean = false) => {
+    if (verbose) {
+      console.groupCollapsed("PrimeSelect");
+      console.log("Before clearing cache", PrimeSelect.getMetrics());
+    }
+
+    // clears cache globally
+    if (verbose) {
+      console.log("Clearing cache");
+    }
+    PrimeSelect.clearCache();
+
+    if (verbose) {
+      console.log("After clearing cache", PrimeSelect.getMetrics());
+      console.groupEnd();
+    }
   };
 }
