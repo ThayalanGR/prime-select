@@ -1,7 +1,7 @@
 {
   "name": "prime-select",
   "description": "Prime Select - React effect's dependancy array based caching library",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "author": "ThayalanGR",
   "license": "ISC",
   "source": "src/index.ts",
