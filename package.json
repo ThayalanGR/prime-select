@@ -1,7 +1,9 @@
 {
-  "name": "@thayalangr/prime-select",
-  "version": "1.0.0",
+  "name": "prime-select",
   "description": "Prime Select - React effect's dependancy array based caching library",
+  "version": "1.0.0",
+  "author": "ThayalanGR",
+  "license": "ISC",
   "source": "src/index.ts",
   "main": "dist/main.js",
   "module": "dist/module.js",
@@ -22,8 +24,6 @@
     "typescript": ">=3.0.0"
   },
   "keywords": [],
-  "author": "ThayalanGR",
-  "license": "ISC",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/ThayalanGR/prime-select.git"
@@ -31,8 +31,5 @@
   "bugs": {
     "url": "https://github.com/ThayalanGR/prime-select/issues"
   },
-  "homepage": "https://github.com/ThayalanGR/prime-select#readme",
-  "publishConfig": {
-    "registry": "https://npm.pkg.github.com/"
-  }
+  "homepage": "https://github.com/ThayalanGR/prime-select#readme"
 }
