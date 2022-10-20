@@ -15,7 +15,7 @@
 
 ### Quick Start
 
-https://github.com/ThayalanGR/prime-select/blob/b67e803f9718b897ac5894b53f8e4a78d6189d8a/src/test/PrimeSelectUsage.test.ts#L1-L26
+https://github.com/ThayalanGR/prime-select/blob/db4e2b46e143126ed7fcca90b24872c82a561884/src/test/PrimeSelectUsage.test.ts#L1-L25
 
 ### Using with React
 
