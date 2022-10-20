@@ -15,7 +15,33 @@
 
 ### Quick Start
 
-https://github.com/ThayalanGR/prime-select/blob/b67e803f9718b897ac5894b53f8e4a78d6189d8a/src/test/PrimeSelectUsage.test.ts#L1-L26
+```typescript
+import PrimeSelect from "prime-select";
+
+interface IState {
+  name: string;
+}
+
+// create cache selector using PrimeSelect
+const memoizedFunction = PrimeSelect.createSelector({
+  name: "memoizedFunction",
+  dependency: (state: IState) => [state.name],
+  compute: (state) => {
+    return state.name;
+  },
+});
+
+const state: IState = { name: "John" };
+
+// using main cache
+const fromMainCache = memoizedFunction({ args: [state] });
+
+// spanning sub cache
+const fromSubCache = memoizedFunction({
+  args: [state],
+  subCacheId: state.name,
+});
+```
 
 ### Using with React
 
