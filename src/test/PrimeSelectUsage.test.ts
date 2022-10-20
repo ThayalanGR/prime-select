@@ -4,6 +4,7 @@ interface IState {
   name: string;
 }
 
+// create cache selector using PrimeSelect
 const memoizedFunction = PrimeSelect.createSelector({
   name: "memoizedFunction",
   dependency: (state: IState) => [state.name],
