@@ -6,7 +6,7 @@ import {
   TCacheValidationType,
 } from "./PrimeSelect.types";
 import isEqual from "lodash.isequal";
-import { clone, roughSizeOfObject } from "./utils";
+import { clone, formKey, roughSizeOfObject } from "./utils";
 
 export default class PrimeSelect {
   private static cacheMapping: Map<string, ISingletonCache<unknown>> =
@@ -82,13 +82,32 @@ export default class PrimeSelect {
     };
   };
 
-  static createSelector: TCreateSelector = (props) => {
-    const { name, cacheValidationType, dependency, compute } = props;
-    const cache = PrimeSelect.getNewSingletonCache({ cacheValidationType });
+  static createSelector: TCreateSelector = (mainProps) => {
+    // mainProps
+    const { name, cacheValidationType, dependency, compute } = mainProps;
 
+    // cache allocation
+    let cache = PrimeSelect.getNewSingletonCache({ cacheValidationType });
     PrimeSelect.cacheMapping.set(name, cache);
 
-    return (...args) => {
+    return (props) => {
+      // prop
+      const { args, subCacheId } = props;
+
+      // span - allocate dedicated cache bucket if subCache Id is found
+      if (subCacheId) {
+        const subCacheName = formKey(name, subCacheId);
+        // sub cache allocation
+        if (PrimeSelect.cacheMapping.has(subCacheName)) {
+          cache = PrimeSelect.cacheMapping.get(
+            subCacheName
+          ) as ISingletonCache<unknown>;
+        } else {
+          cache = PrimeSelect.getNewSingletonCache({ cacheValidationType });
+          PrimeSelect.cacheMapping.set(subCacheName, cache);
+        }
+      }
+
       // gather deps
       const newDependency = dependency(...args);
 
@@ -97,7 +116,11 @@ export default class PrimeSelect {
 
       // if cache is valid return cached result
       if (isCacheValid) {
-        return cache.getResult();
+        const result = cache.getResult();
+        // to handle empty dep array
+        if (result) {
+          return result;
+        }
       }
 
       // if cache is not valid recompute function and set result

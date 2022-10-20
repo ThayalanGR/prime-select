@@ -36,3 +36,8 @@ export const roughSizeOfObject = (object: unknown) => {
 };
 
 export const clone = rfdc();
+
+const KEY_DELIMITER = "~||~";
+export const formKey = (...args: string[]) => {
+  return args.join(KEY_DELIMITER);
+};

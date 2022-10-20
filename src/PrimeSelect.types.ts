@@ -1,7 +1,7 @@
 export type TCreateSelector = <
   Args extends unknown[],
   R extends unknown
->(props: {
+>(mainProps: {
   /**
    * Name of the selector
    */
@@ -29,7 +29,18 @@ export type TCreateSelector = <
    * use only if deps ref gets updated frequently instead of value
    */
   cacheValidationType?: TCacheValidationType;
-}) => (...args: Args) => R;
+}) => TCreateSelectorReturnType<Args, R>;
+
+type TCreateSelectorReturnType<
+  Args extends unknown[],
+  R extends unknown
+> = (props: {
+  args: Args;
+  /**
+   * if passed cache function will span based on subCacheId, (useful when dedicated cache bucket needed)
+   */
+  subCacheId?: string;
+}) => R;
 
 // validation type
 export type TCacheValidationType = "shallow" | "deep";
