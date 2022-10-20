@@ -106,6 +106,8 @@ export default class PrimeSelect {
           cache = PrimeSelect.getNewSingletonCache({ cacheValidationType });
           PrimeSelect.cacheMapping.set(subCacheName, cache);
         }
+      } else {
+        cache = PrimeSelect.cacheMapping.get(name) as ISingletonCache<unknown>;
       }
 
       // gather deps
@@ -150,8 +152,8 @@ export default class PrimeSelect {
 
       return {
         name: selectorName,
-        cache: clone(cache),
         cacheSize,
+        cache: clone(cache),
       };
     } else {
       const overallCacheSize: ReturnType<typeof roughSizeOfObject> = {
@@ -162,8 +164,8 @@ export default class PrimeSelect {
       // overall metrics
       const overallCache: {
         name: string;
-        cache: unknown;
         cacheSize: typeof overallCacheSize;
+        cache: unknown;
       }[] = [];
       let maxCacheUsageSelector: {
         name: string;
@@ -171,8 +173,8 @@ export default class PrimeSelect {
         cacheSize: typeof overallCacheSize;
       } = {
         name: "",
-        cache: null,
         cacheSize: { bytes: 0, kilobytes: 0, megabytes: 0 },
+        cache: null,
       };
 
       const accumulateCacheSize = (
@@ -195,8 +197,8 @@ export default class PrimeSelect {
 
           const selectorMetrics = {
             name: currentSelectorName,
-            cache: clone(cache),
             cacheSize,
+            cache: cache,
           };
           if (maxCacheUsageSelector) {
             if (
