@@ -2,7 +2,7 @@
 
 [![npm version](https://badge.fury.io/js/prime-select.svg)](https://badge.fury.io/js/prime-select)
 
-> Replacement for libraries like lodash.memo, fast-memoize, reselect / re-reselect packages ?
+> Replacement for libraries like lodash.memo, fast-memoize, reselect or other caching packages ?
 
 > **No, Prime Select is a general purpose caching library, used to introduce caching at granular functional level.**
 
@@ -14,6 +14,7 @@
 2. Global cache clearance support. (Do not left unwanted computed cached values in memory)
 3. Improved metrics about cache functions and memory usage.
 4. Shallow / deep cache validation handle support.
+5. Typescript compatible, since prime-select is bootstrapped with typescript
 
 ## Getting Started
 
@@ -43,7 +44,7 @@ const memoizedFunction = PrimeSelect.createSelector({
   compute: (state) => {
     return state.name;
   },
-  cacheValidationType: 'shallow' // default validation type - faster
+  cacheValidationType: "shallow", // default validation type - faster
 });
 
 const state: IState = { name: "John" };
