@@ -21,7 +21,7 @@ export type TCreateSelector = <
   compute: (...args: Args) => R;
 
   /**
-   * @default 'shallow'
+   * @default shallow
    *
    * shallow - reference based eps comparison - fast - suggested type
    *
@@ -29,18 +29,34 @@ export type TCreateSelector = <
    * use only if deps ref gets updated frequently instead of value
    */
   cacheValidationType?: TCacheValidationType;
+
+  /**
+   *
+   * When true, Verbose about the dependencies that causes recomputation
+   * will be printed out - this improves developer debugging efficiency
+   *
+   * @default false
+   */
+  reComputationMetrics?: boolean;
 }) => TCreateSelectorReturnType<Args, R>;
 
-type TCreateSelectorReturnType<
-  Args extends unknown[],
-  R extends unknown
-> = (props: {
-  args: Args;
-  /**
-   * if passed cache function will span based on subCacheId, (useful when dedicated cache bucket needed)
-   */
-  subCacheId?: string;
-}) => R;
+type TCreateSelectorReturnType<Args extends unknown[], R extends unknown> =
+  (props: {
+    args: Args;
+    /**
+     * if passed cache function will span based on subCacheId, (useful when dedicated cache bucket needed)
+     */
+    subCacheId?: string;
+    /**
+     * This will be used to target the particular used instance of the selector
+     *
+     * When true, Verbose about the dependencies that causes recomputation
+     * will be printed out - this improves developer debugging efficiency
+     *
+     * @default false
+     */
+    reComputationMetrics?: boolean;
+  }) => R;
 
 // validation type
 export type TCacheValidationType = "shallow" | "deep";
@@ -48,12 +64,22 @@ export type TCacheValidationType = "shallow" | "deep";
 // deps array
 type TDependencyArray = unknown[];
 
-// cache related typings
-export type TCacheMapping = Map<string, unknown>;
-
 export interface ICacheObject<R = unknown> {
   dependency: TDependencyArray;
   result: R;
+}
+
+export interface ICacheValidateResponse {
+  isValid: boolean;
+  dependencyDiff?: {
+    previous: unknown;
+    current: unknown;
+    index?: number;
+    /**
+     * deep diff will be available if cacheValidationType is 'deep'
+     */
+    deepDiff?: unknown;
+  }[];
 }
 
 export interface ISingletonCache<R extends unknown> {
@@ -68,9 +94,16 @@ export interface ISingletonCache<R extends unknown> {
   /**
    * return `true` if newDependency matches with oldDependency
    */
-  validate: (newDependency: TDependencyArray) => boolean;
+  validate: (
+    newDependency: TDependencyArray,
+    reComputationMetrics?: boolean
+  ) => ICacheValidateResponse;
   /**
    * clears both result and dependency of the singleton cache
    */
   clearCache: () => void;
+}
+
+export interface IPrimeSelectConfig {
+  isProduction?: boolean;
 }

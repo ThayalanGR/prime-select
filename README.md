@@ -45,6 +45,7 @@ const memoizedFunction = PrimeSelect.createSelector({
     return state.name;
   },
   cacheValidationType: "shallow", // default validation type - faster
+  reComputationMetrics: false, // used to debug the memoized function with dependency diff metrics
 });
 
 const state: IState = { name: "John" };

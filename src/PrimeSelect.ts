@@ -1,16 +1,21 @@
 import {
-  TCacheMapping,
   ISingletonCache,
   TCreateSelector,
   ICacheObject,
   TCacheValidationType,
+  ICacheValidateResponse,
+  IPrimeSelectConfig,
 } from "./PrimeSelect.types";
 import isEqual from "lodash.isequal";
-import { clone, formKey, roughSizeOfObject } from "./utils";
+import { clone, deepDiff, formKey, roughSizeOfObject } from "./utils";
 
 export default class PrimeSelect {
   private static cacheMapping: Map<string, ISingletonCache<unknown>> =
     new Map();
+
+  private static config: IPrimeSelectConfig = {
+    isProduction: process?.env?.NODE_ENV === "production" ?? false,
+  };
 
   private static getNewSingletonCache = <R = unknown>(options?: {
     cacheValidationType?: TCacheValidationType;
@@ -40,8 +45,12 @@ export default class PrimeSelect {
 
     const getResult: ISingletonCache<R>["getResult"] = () => cache.result;
 
-    const validate: ISingletonCache<R>["validate"] = (newDependency) => {
+    const validate: ISingletonCache<R>["validate"] = (
+      newDependency,
+      reComputationMetrics
+    ) => {
       let isValid = true;
+      let dependencyDiff: ICacheValidateResponse["dependencyDiff"] = [];
       if (newDependency?.length === cache.dependency?.length) {
         if (cacheValidationType === "shallow") {
           for (let index = 0; index < newDependency.length; index++) {
@@ -50,19 +59,34 @@ export default class PrimeSelect {
 
             if (newDependencyItem !== oldDependencyItem) {
               isValid = false;
+              if (reComputationMetrics) {
+                dependencyDiff.push({
+                  previous: clone(oldDependencyItem),
+                  current: clone(newDependencyItem),
+                  index,
+                });
+              }
               break;
             }
           }
         } else {
-          const isDepsEqual = isEqual(cache.dependency, newDependency);
+          // 'deep' cacheValidationType
+          const isDepsEqual = isEqual(cache.dependency, newDependency); // costly
           if (!isDepsEqual) {
             isValid = false;
+            if (reComputationMetrics) {
+              dependencyDiff.push({
+                previous: clone(cache.dependency),
+                current: clone(newDependency),
+                deepDiff: deepDiff(cache.dependency, newDependency),
+              });
+            }
           }
         }
       } else {
         isValid = false;
       }
-      return isValid;
+      return { isValid, dependencyDiff };
     };
 
     const clearCache = () => {
@@ -82,9 +106,22 @@ export default class PrimeSelect {
     };
   };
 
+  static setConfig = (config: Partial<IPrimeSelectConfig>) => {
+    PrimeSelect.config = {
+      ...PrimeSelect.config,
+      ...config,
+    };
+  };
+
   static createSelector: TCreateSelector = (mainProps) => {
     // mainProps
-    const { name, cacheValidationType, dependency, compute } = mainProps;
+    const {
+      name,
+      cacheValidationType,
+      reComputationMetrics: masterReComputationMetrics,
+      dependency,
+      compute,
+    } = mainProps;
 
     // cache allocation
     let cache = PrimeSelect.getNewSingletonCache({ cacheValidationType });
@@ -92,11 +129,16 @@ export default class PrimeSelect {
 
     return (props) => {
       // prop
-      const { args, subCacheId } = props;
+      const {
+        args,
+        subCacheId,
+        reComputationMetrics: instanceReComputationMetrics,
+      } = props;
 
       // span - allocate dedicated cache bucket if subCache Id is found
       if (subCacheId) {
         const subCacheName = formKey(name, subCacheId);
+
         // sub cache allocation
         if (PrimeSelect.cacheMapping.has(subCacheName)) {
           cache = PrimeSelect.cacheMapping.get(
@@ -113,8 +155,18 @@ export default class PrimeSelect {
       // gather deps
       const newDependency = dependency(...args);
 
+      let reComputationMetrics =
+        instanceReComputationMetrics ?? masterReComputationMetrics ?? false;
+
+      if (PrimeSelect.config.isProduction) {
+        reComputationMetrics = false;
+      }
+
       // validate cache
-      const isCacheValid = cache.validate(newDependency);
+      const { isValid: isCacheValid, dependencyDiff } = cache.validate(
+        newDependency,
+        reComputationMetrics
+      );
 
       // if cache is valid return cached result
       if (isCacheValid) {
@@ -123,6 +175,16 @@ export default class PrimeSelect {
         if (result) {
           return result;
         }
+      }
+
+      if (reComputationMetrics) {
+        console.group(
+          "Prime Select",
+          "ReComputation Metrics",
+          ...[name, subCacheId].filter((item) => item !== undefined)
+        );
+        console.log("Dependency Diff", ...(dependencyDiff ?? []));
+        console.groupEnd();
       }
 
       // if cache is not valid recompute function and set result

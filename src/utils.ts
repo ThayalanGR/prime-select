@@ -1,4 +1,7 @@
 import rfdc from "rfdc";
+import isEqual from "lodash.isequal";
+import transform from "lodash.transform";
+import isObject from "lodash.isobject";
 
 export const roughSizeOfObject = (object: unknown) => {
   const objectList: unknown[] = [];
@@ -41,3 +44,14 @@ const KEY_DELIMITER = "~||~";
 export const formKey = (...args: string[]) => {
   return args.join(KEY_DELIMITER);
 };
+
+export const deepDiff = (object: Object, base: unknown) =>
+  transform(object, (result: Record<string, unknown>, value, key) => {
+    if (!isEqual(value, (<Object>base)[key])) {
+      result[key] = <Object>(
+        (isObject(<unknown>value) && isObject((<Object>base)[key])
+          ? deepDiff(value, (<Object>base)[key])
+          : value)
+      );
+    }
+  });

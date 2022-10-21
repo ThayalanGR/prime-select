@@ -19,7 +19,10 @@ export const PrimeSelectUsage: React.FC = () => {
   const cache = PrimeSelect.getMetrics();
 
   // using main cache
-  const fromMainCache = memoizedFunction({ args: [state, mainCacheCount] });
+  const fromMainCache = memoizedFunction({
+    args: [state, mainCacheCount],
+    reComputationMetrics: true,
+  });
 
   // spanning sub cache
   const fromSubCache = memoizedFunction({
