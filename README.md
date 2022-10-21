@@ -43,6 +43,7 @@ const memoizedFunction = PrimeSelect.createSelector({
   compute: (state) => {
     return state.name;
   },
+  cacheValidationType: 'shallow' // default validation type - faster
 });
 
 const state: IState = { name: "John" };
@@ -64,6 +65,10 @@ https://codesandbox.io/s/primeselect-2mku74?file=/src/index.tsx
 ## Storybook
 
 https://6351f82565c7fab2bce55dad-wzsyjpapeh.chromatic.com/?path=/story/prime-select--usage
+
+## Contribution Guidelines
+
+Follow this [Guidelines](./CONTRIBUTING.md) for Contributing to prime-select.
 
 ## Supported by
 
