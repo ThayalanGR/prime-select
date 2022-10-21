@@ -14,9 +14,9 @@
     "storybook": "start-storybook -p 6006",
     "build-storybook": "build-storybook",
     "chromatic": "npx chromatic --project-token=9c1f4f202a48",
-    "publish:minor": "yarn build && npm version minor",
-    "publish:major": "yarn build && npm version major",
-    "publish:patch": "yarn build && npm version patch"
+    "version:minor": "yarn build && npm version minor",
+    "version:major": "yarn build && npm version major",
+    "version:patch": "yarn build && npm version patch"
   },
   "dependencies": {
     "lodash.isequal": "4.5.0",
