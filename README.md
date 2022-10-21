@@ -59,7 +59,7 @@ const fromSubCache = memoizedFunction({
 
 ## Using with React
 
-https://codesandbox.io/s/primeselect-2mku74?file=/src/index.tsx
+https://codesandbox.io/s/primeselect-2mku74?file=/src/PrimeSelectUsage.tsx
 
 ## Storybook
 
