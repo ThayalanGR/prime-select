@@ -63,7 +63,7 @@ https://codesandbox.io/s/primeselect-2mku74?file=/src/PrimeSelectUsage.tsx
 
 ## Storybook
 
-https://6351f82565c7fab2bce55dad-wzsyjpapeh.chromatic.com/?path=/story/prime-select--usage
+https://main--6351f82565c7fab2bce55dad.chromatic.com/?path=/story/prime-select--usage
 
 ## Supported by
 
