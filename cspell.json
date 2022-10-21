@@ -7,6 +7,7 @@
   // words - list of words to be always considered correct
   "words": [
     "isequal",
+    "Lumel",
     "rfdc"
   ],
   // flagWords - list of words to be always considered incorrect
