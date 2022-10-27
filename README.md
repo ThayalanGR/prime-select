@@ -40,8 +40,8 @@ interface IState {
 // create cache selector using PrimeSelect
 const memoizedFunction = PrimeSelect.createSelector({
   name: "memoizedFunction",
-  dependency: (state: IState) => [state.name], // dependency array (same like React's useEffect's deps array)
-  compute: (state) => {
+  dependency: (props: { state: IState }) => [props.state.name], // dependency array (same like React's useEffect's deps array)
+  compute: ({ state }) => {
     return state.name;
   },
   cacheValidationType: "shallow", // default validation type - faster
@@ -51,11 +51,11 @@ const memoizedFunction = PrimeSelect.createSelector({
 const state: IState = { name: "John" };
 
 // using main cache
-const fromMainCache = memoizedFunction({ args: [state] });
+const fromMainCache = memoizedFunction({ props: { state } });
 
 // spanning sub cache
 const fromSubCache = memoizedFunction({
-  args: [state],
+  props: { state },
   subCacheId: state.name,
 });
 ```
