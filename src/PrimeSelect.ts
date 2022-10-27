@@ -125,15 +125,26 @@ export default class PrimeSelect {
 
     // cache allocation
     let cache = PrimeSelect.getNewSingletonCache({ cacheValidationType });
+
+    const isCacheWithCurrentNameAlreadyExists =
+      PrimeSelect.cacheMapping.has(name);
+
+    // throws error if detects selector with same name already exists
+    if (isCacheWithCurrentNameAlreadyExists) {
+      throw new Error(
+        `Selector with name ${name} already exists, Please use unique name for each selectors.`
+      );
+    }
+
     PrimeSelect.cacheMapping.set(name, cache);
 
-    return (props) => {
+    return (options) => {
       // prop
       const {
-        args,
+        props,
         subCacheId,
         reComputationMetrics: instanceReComputationMetrics,
-      } = props;
+      } = options;
 
       // span - allocate dedicated cache bucket if subCache Id is found
       if (subCacheId) {
@@ -153,7 +164,7 @@ export default class PrimeSelect {
       }
 
       // gather deps
-      const newDependency = dependency(...args);
+      const newDependency = dependency(props);
 
       let reComputationMetrics =
         instanceReComputationMetrics ?? masterReComputationMetrics ?? false;
@@ -188,7 +199,7 @@ export default class PrimeSelect {
       }
 
       // if cache is not valid recompute function and set result
-      const newResult = compute(...args);
+      const newResult = compute(props);
       cache.setDependency(newDependency);
       cache.setResult(newResult);
 

@@ -7,15 +7,15 @@ interface IState {
 // create cache selector using PrimeSelect
 export const memoizedFunction = PrimeSelect.createSelector({
   name: "memoizedFunction",
-  dependency: (state: IState, somePrimitive: number) => [
-    state.name,
-    somePrimitive,
+  dependency: (props: { state: IState; somePrimitive: number }) => [
+    props.state.name,
+    props.somePrimitive,
   ],
-  compute: (state, somePrimitive) => {
-    return [...Array(somePrimitive)].map(() => ({
+  compute: (props) => {
+    return {
       name: state.name,
-      somePrimitive,
-    }));
+      somePrimitive: props.somePrimitive,
+    };
   },
 });
 

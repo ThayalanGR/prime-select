@@ -1,5 +1,5 @@
 export type TCreateSelector = <
-  Args extends unknown[],
+  Args extends unknown,
   R extends unknown
 >(mainProps: {
   /**
@@ -13,12 +13,12 @@ export type TCreateSelector = <
    * 2. arrays / Objects - reference change of those items will cause the
    * cache to revalidate by calling compute function
    */
-  dependency: (...args: Args) => TDependencyArray;
+  dependency: (props: Args) => TDependencyArray;
   /**
    * Compute function should return something either primitive / (arrays / Objects) reference
    * compute function will be called each time the dependency array changes
    */
-  compute: (...args: Args) => R;
+  compute: (props: Args) => R;
 
   /**
    * @default shallow
@@ -40,9 +40,9 @@ export type TCreateSelector = <
   reComputationMetrics?: boolean;
 }) => TCreateSelectorReturnType<Args, R>;
 
-type TCreateSelectorReturnType<Args extends unknown[], R extends unknown> =
-  (props: {
-    args: Args;
+type TCreateSelectorReturnType<Args extends unknown, R extends unknown> =
+  (options: {
+    props: Args;
     /**
      * if passed cache function will span based on subCacheId, (useful when dedicated cache bucket needed)
      */
