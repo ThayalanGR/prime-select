@@ -106,4 +106,8 @@ export interface ISingletonCache<R extends unknown> {
 
 export interface IPrimeSelectConfig {
   isProduction?: boolean;
+  /**
+   * this will enable reComputation metrics on all selectors
+   */
+  reComputationMetrics?: boolean;
 }

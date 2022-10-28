@@ -22,6 +22,7 @@ export default class PrimeSelect {
 
   private static config: IPrimeSelectConfig = {
     isProduction: false,
+    reComputationMetrics: false,
   };
 
   private static getInitialCacheObject = <R>(): ICacheObject<R> => {
@@ -174,8 +175,12 @@ export default class PrimeSelect {
       // gather deps
       const newDependency = dependency(props);
 
+      // flags taken based on priority bottom to top approach
       let reComputationMetrics =
-        instanceReComputationMetrics ?? masterReComputationMetrics ?? false;
+        instanceReComputationMetrics ??
+        masterReComputationMetrics ??
+        PrimeSelect.config.reComputationMetrics ??
+        false;
 
       if (PrimeSelect.config.isProduction) {
         reComputationMetrics = false;
