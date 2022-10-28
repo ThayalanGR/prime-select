@@ -100,10 +100,7 @@ export default class PrimeSelect {
       return { isValid, dependencyDiff };
     };
 
-    const clearCache = () => {
-      cache.dependency = [];
-      cache.result = null as any;
-    };
+    const clearCache = () => PrimeSelect.getInitialCacheObject();
 
     // return
     return {
