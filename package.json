@@ -1,7 +1,7 @@
 {
   "name": "prime-select",
   "description": "Prime Select - An opinionated dependancy array based caching library",
-  "version": "1.6.1",
+  "version": "1.6.2",
   "author": "ThayalanGR",
   "license": "MIT",
   "source": "src/index.ts",
