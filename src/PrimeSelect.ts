@@ -13,8 +13,22 @@ export default class PrimeSelect {
   private static cacheMapping: Map<string, ISingletonCache<unknown>> =
     new Map();
 
+  private static resultIdentifierKey: string = formKey(
+    "PRIME",
+    "SELECT",
+    "RESULT",
+    "IDENTIFIER"
+  );
+
   private static config: IPrimeSelectConfig = {
-    isProduction: process?.env?.NODE_ENV === "production" ?? false,
+    isProduction: false,
+  };
+
+  private static getInitialCacheObject = <R>(): ICacheObject<R> => {
+    return {
+      dependency: [],
+      result: PrimeSelect.resultIdentifierKey as R,
+    };
   };
 
   private static getNewSingletonCache = <R = unknown>(options?: {
@@ -26,10 +40,7 @@ export default class PrimeSelect {
     };
 
     // cache
-    const cache: ICacheObject<R> = {
-      dependency: [],
-      result: null as any,
-    };
+    const cache = PrimeSelect.getInitialCacheObject<R>();
 
     // handlers
     const setDependency: ISingletonCache<R>["setDependency"] = (dependency) => {
@@ -183,7 +194,7 @@ export default class PrimeSelect {
       if (isCacheValid) {
         const result = cache.getResult();
         // to handle empty dep array
-        if (result) {
+        if (result !== PrimeSelect.resultIdentifierKey) {
           return result;
         }
       }
