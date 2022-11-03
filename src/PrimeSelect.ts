@@ -112,6 +112,18 @@ export default class PrimeSelect {
         };
     };
 
+    private static getCacheFromCacheMapping = <R extends unknown>(
+        name: string,
+        cacheValidationType?: TCacheValidationType,
+    ): ISingletonCache<R> => {
+        let cache = PrimeSelect.cacheMapping.get(name);
+        if (!cache) {
+            cache = PrimeSelect.getNewSingletonCache({ cacheValidationType });
+            PrimeSelect.cacheMapping.set(name, cache);
+        }
+        return cache as ISingletonCache<R>;
+    };
+
     static createSelector: TCreateSelector = (mainProps) => {
         // mainProps
         const {
@@ -153,19 +165,8 @@ export default class PrimeSelect {
             } = options;
 
             // span - allocate dedicated cache bucket if subCache Id is found
-            if (subCacheId) {
-                const subCacheName = formKey(name, subCacheId);
-
-                // sub cache allocation
-                if (PrimeSelect.cacheMapping.has(subCacheName)) {
-                    cache = PrimeSelect.cacheMapping.get(subCacheName) as ISingletonCache<unknown>;
-                } else {
-                    cache = PrimeSelect.getNewSingletonCache({ cacheValidationType });
-                    PrimeSelect.cacheMapping.set(subCacheName, cache);
-                }
-            } else {
-                cache = PrimeSelect.cacheMapping.get(name) as ISingletonCache<unknown>;
-            }
+            const cacheName = subCacheId ? formKey(name, subCacheId) : name;
+            cache = PrimeSelect.getCacheFromCacheMapping(cacheName, cacheValidationType);
 
             // gather deps
             const newDependency = dependency(props);
@@ -317,9 +318,7 @@ export default class PrimeSelect {
 
             clearCache();
         } else {
-            PrimeSelect.cacheMapping.forEach((currentCache) => {
-                currentCache.clearCache();
-            });
+            PrimeSelect.cacheMapping = new Map();
         }
     };
 
