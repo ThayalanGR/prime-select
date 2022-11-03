@@ -135,13 +135,21 @@ export default class PrimeSelect {
     // cache allocation
     let cache = PrimeSelect.getNewSingletonCache({ cacheValidationType });
 
+    const hasValidCacheName = name && name?.length > 0;
+
+    if (!hasValidCacheName) {
+      console.trace();
+      throw new Error("Prime Select: Selector should have a valid name");
+    }
+
     const isCacheWithCurrentNameAlreadyExists =
       PrimeSelect.cacheMapping.has(name);
 
     // throws error if detects selector with same name already exists
     if (isCacheWithCurrentNameAlreadyExists) {
+      console.trace();
       throw new Error(
-        `Selector with name ${name} already exists, Please use unique name for each selectors.`
+        `Prime Select: Selector with name ${name} already exists, Please use unique name for each selectors.`
       );
     }
 
