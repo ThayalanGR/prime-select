@@ -1,2 +1,2 @@
-export { default as PrimeSelect } from "./PrimeSelect";
-export * from "./PrimeSelect.types";
+export { default as PrimeSelect } from './PrimeSelect';
+export * from './PrimeSelect.types';
