@@ -206,6 +206,9 @@ export default class PrimeSelect {
                     ...[name, subCacheId].filter((item) => item !== undefined),
                 );
                 console.log('Dependency Diff', ...(dependencyDiff ?? []));
+                console.groupCollapsed('Tracing');
+                console.trace();
+                console.groupEnd();
                 console.groupEnd();
             }
 
