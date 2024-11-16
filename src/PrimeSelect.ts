@@ -151,7 +151,10 @@ export default class PrimeSelect {
         // throws error if detects selector with same name already exists
         if (isCacheWithCurrentNameAlreadyExists) {
             console.trace();
-            throw new Error(
+            // throw new Error(
+            //     `Prime Select: Selector with name ${name} already exists, Please use unique name for each selectors.`,
+            // );
+            console.info(
                 `Prime Select: Selector with name ${name} already exists, Please use unique name for each selectors.`,
             );
         }
