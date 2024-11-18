@@ -27,8 +27,8 @@
     },
     "devDependencies": {
         "@babel/core": "^7.19.6",
-        "@parcel/packager-ts": "2.7.0",
-        "@parcel/transformer-typescript-types": "2.7.0",
+        "@parcel/packager-ts": "2.13.0",
+        "@parcel/transformer-typescript-types": "2.13.0",
         "@storybook/addon-actions": "^6.5.12",
         "@storybook/addon-essentials": "^6.5.12",
         "@storybook/addon-interactions": "^6.5.12",
@@ -45,7 +45,7 @@
         "@types/react": "^18.0.21",
         "babel-loader": "^8.2.5",
         "chromatic": "^6.10.4",
-        "parcel": "^2.7.0",
+        "parcel": "^2.13.0",
         "react": "^18.2.0",
         "react-dom": "^18.2.0",
         "typescript": ">=3.0.0"
